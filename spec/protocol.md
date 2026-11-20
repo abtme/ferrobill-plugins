@@ -5,8 +5,9 @@ that ferrobill calls with signed JSON when a customer's service starts, is suspe
 unsuspended, moves to another package, or is cancelled. The same JSON also works for a
 WebAssembly plugin loaded into ferrobill (`plugin.wit`, the `provision` op).
 
-Parts marked **(ferrobill 0.8)** are not sent by ferrobill 0.7 yet. Plugins should work without
-them, and the SDK's types already accept both.
+Parts marked **(ferrobill 0.8)** are new in ferrobill 0.8 (servers, service fields,
+`change_package`, actions); 0.7 doesn't send or use them. Plugins should still work without
+them, and the SDK's types accept both.
 
 ## Setting a plugin up in ferrobill
 
@@ -74,8 +75,11 @@ refuse a timestamp more than 5 minutes from your clock (answer 401). The SDK doe
 | cancelled | `terminate` |
 
 - `server` **(ferrobill 0.8)**: for `create`, the server ferrobill picked from the product's
-  server group (least full first). For later jobs, the server the service is on. Until then,
-  plugins fall back to what their own `create` answered (`service.provisioning.server`).
+  server group (least full first). For later jobs, the server the service is on. Null when the
+  product names no server group; plugins then fall back to what their own `create` answered
+  (`service.provisioning.server`), a server in `config`, or their only server.
+- `change_package` may arrive for a package the account already has (for example while its
+  `create` was still on its way): treat it as done.
 - `service.provisioning` holds what earlier jobs answered, merged, so `suspend` knows the account
   `create` made.
 
