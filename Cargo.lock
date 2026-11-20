@@ -227,12 +227,25 @@ dependencies = [
  "anyhow",
  "axum",
  "ferrobill-plugin-sdk",
- "getrandom",
  "reqwest",
  "serde",
  "serde_json",
  "serde_urlencoded",
- "sha2",
+ "tokio",
+ "tracing",
+]
+
+[[package]]
+name = "ferrobill-hestiacp"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "axum",
+ "ferrobill-plugin-sdk",
+ "reqwest",
+ "serde",
+ "serde_json",
+ "serde_urlencoded",
  "tokio",
  "tracing",
 ]
@@ -254,6 +267,7 @@ version = "0.1.0"
 dependencies = [
  "anyhow",
  "axum",
+ "getrandom",
  "hmac",
  "reqwest",
  "rustls",

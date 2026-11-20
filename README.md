@@ -9,8 +9,8 @@ documented, signed JSON protocol.
 Everything here is under the **Apache License 2.0**. ferrobill itself is AGPL-3.0 with a plugin
 exception: plugins that only use the documented interface may use any licence.
 
-> **Status: early.** The SDK and the DirectAdmin plugin are tested against a fake DirectAdmin
-> only, not yet against a real server.
+> **Status: early.** The plugins are tested against fakes of the panels' APIs, not yet against
+> real servers.
 
 ## Plugins
 
@@ -18,7 +18,7 @@ exception: plugins that only use the documented interface may use any licence.
 |---|---|---|
 | [DirectAdmin](modules/directadmin/README.md) | `ferrobill-directadmin` | written, tested against a fake DirectAdmin |
 | apicp | | planned |
-| HestiaCP | | planned |
+| [HestiaCP](modules/hestiacp/README.md) | `ferrobill-hestiacp` | written, tested against a fake HestiaCP |
 | cPanel / WHM | | planned |
 | Plesk | | planned |
 | DigitalOcean (droplets) | | planned |
@@ -30,7 +30,7 @@ exception: plugins that only use the documented interface may use any licence.
 |---|---|
 | [spec/protocol.md](spec/protocol.md) | The protocol: manifest, jobs, actions, signatures |
 | `spec/plugin.wit` | The same interface for WebAssembly plugins |
-| `crates/sdk` | `ferrobill-plugin-sdk`: types, signature checks, the HTTP server, a client for tests |
+| `crates/sdk` | `ferrobill-plugin-sdk`: types, signature checks, the HTTP server, a client for tests, helpers (domain, username, password) |
 | `crates/cli` | `ferrobill-plugin-cli`: call a plugin as ferrobill would, to try it against a real server |
 | `modules/<name>` | One plugin each, built into its own image |
 

@@ -13,6 +13,7 @@
 pub mod client;
 pub mod signature;
 pub mod types;
+pub mod util;
 
 use std::future::Future;
 use std::sync::Arc;

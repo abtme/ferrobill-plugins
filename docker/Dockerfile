@@ -17,7 +17,7 @@ COPY . .
 RUN rustup toolchain install \
  && cargo build --release --locked --target x86_64-unknown-linux-musl --workspace --bins \
  && mkdir -p /out \
- && for b in ferrobill-directadmin ferrobill-plugin-cli; do \
+ && for b in ferrobill-directadmin ferrobill-hestiacp ferrobill-plugin-cli; do \
       install -m 0755 target/x86_64-unknown-linux-musl/release/$b /out/$b; \
     done
 
@@ -38,3 +38,10 @@ COPY --from=build /out/ferrobill-directadmin /ferrobill-directadmin
 # For trying the plugin by hand: docker exec ... /ferrobill-plugin-cli http://127.0.0.1:8080 manifest
 COPY --from=build /out/ferrobill-plugin-cli /ferrobill-plugin-cli
 ENTRYPOINT ["/ferrobill-directadmin"]
+
+FROM base AS hestiacp
+LABEL org.opencontainers.image.title="ferrobill-hestiacp" \
+      org.opencontainers.image.description="HestiaCP provisioning plugin for ferrobill"
+COPY --from=build /out/ferrobill-hestiacp /ferrobill-hestiacp
+COPY --from=build /out/ferrobill-plugin-cli /ferrobill-plugin-cli
+ENTRYPOINT ["/ferrobill-hestiacp"]
