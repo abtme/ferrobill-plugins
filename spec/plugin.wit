@@ -1,0 +1,55 @@
+// SPDX-License-Identifier: Apache-2.0
+// Copied from ferrobill (wit/plugin.wit); the plugin interface is Apache-2.0.
+// The interface between ferrobill and a WebAssembly plugin (a component). The bodies are the
+// JSON of the HTTP plugin protocol (docs/plugins.md), so a plugin can be written once for either.
+package ferrobill:plugin@0.1.0;
+
+interface types {
+    /// A failure: `status` as the HTTP protocol would answer (422 = refused, don't retry; other
+    /// statuses are retried), and why.
+    record failure {
+        status: u16,
+        detail: string,
+    }
+
+    record http-request {
+        method: string,
+        url: string,
+        headers: list<tuple<string, string>>,
+        body: list<u8>,
+    }
+
+    record http-response {
+        status: u16,
+        headers: list<tuple<string, string>>,
+        body: list<u8>,
+    }
+}
+
+/// What ferrobill offers a plugin. Nothing else: no files, no sockets, no clock beyond `now`.
+interface host {
+    use types.{http-request, http-response};
+
+    /// An HTTPS request, only to a host the plugin's manifest lists in `allowed_hosts`
+    /// (30 second timeout, redirects not followed, 10 MB answer at most).
+    fetch: func(request: http-request) -> result<http-response, string>;
+    /// A line in ferrobill's log.
+    log: func(message: string);
+    /// Unix seconds.
+    now: func() -> s64;
+}
+
+world plugin {
+    import host;
+    use types.{failure};
+
+    /// The manifest as JSON: name, version, kinds, and `allowed_hosts` (the hosts fetch may reach).
+    /// `settings`: the plugin's settings, as JSON (set by the owner; secrets such as API keys).
+    export manifest: func(settings: string) -> result<string, failure>;
+    /// An operation (`checkout`, `setup`, `collect`, `provision`) with its JSON body; the answer's
+    /// JSON is as the HTTP protocol's.
+    export call: func(op: string, settings: string, body: string) -> result<string, failure>;
+    /// A webhook from the gateway, passed on by ferrobill (`/v1/plugins/{id}/webhook`): the
+    /// plugin checks it (its signature) and answers a JSON array of reports, each a notify body.
+    export webhook: func(settings: string, headers: list<tuple<string, string>>, body: list<u8>) -> result<string, failure>;
+}

@@ -1,0 +1,58 @@
+name: CI
+
+# No pull_request trigger: CI runs on our own self-hosted runners, and on a public repository a
+# pull request from a fork would run its own workflow files on them. Changes from contributors are
+# checked by a maintainer, then pushed.
+on:
+  push:
+    branches: [main]
+    tags: ["v*"]
+  # Daily, so a RustSec advisory against a dependency we already use is caught.
+  schedule:
+    - cron: "41 5 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  CARGO_TERM_COLOR: always
+  CARGO_DENY_VERSION: 0.20.2
+
+# The runner comes from the repository variable LINUX_RUNNER (our own runner set); there is no
+# fallback to GitHub-hosted runners.
+jobs:
+  test:
+    runs-on: ${{ vars.LINUX_RUNNER }}
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v7
+      - name: System packages
+        run: |
+          printf 'Acquire::ForceIPv4 "true";\nAcquire::Retries "3";\n' | sudo tee /etc/apt/apt.conf.d/99ci >/dev/null
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends build-essential pkg-config curl ca-certificates musl-tools
+      - name: Rust (version from rust-toolchain.toml)
+        run: |
+          if ! command -v rustup >/dev/null; then
+            curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y --profile minimal --default-toolchain none
+            echo "$HOME/.cargo/bin" >> "$GITHUB_PATH"
+            export PATH="$HOME/.cargo/bin:$PATH"
+          fi
+          rustup toolchain install
+      - name: cargo-deny (licences, advisories, sources)
+        run: |
+          mkdir -p "$RUNNER_TEMP/bin"
+          curl -sSfL "https://github.com/EmbarkStudios/cargo-deny/releases/download/${CARGO_DENY_VERSION}/cargo-deny-${CARGO_DENY_VERSION}-x86_64-unknown-linux-musl.tar.gz" \
+            | tar -xz -C "$RUNNER_TEMP/bin" --strip-components=1
+          "$RUNNER_TEMP/bin/cargo-deny" check
+      - uses: Swatinem/rust-cache@v2
+      - run: cargo fmt --all --check
+      - run: cargo clippy --workspace --all-targets --locked -- -D warnings
+      - run: cargo test --workspace --locked
+      # The release binaries build static, as the images do.
+      - run: cargo build --release --locked --target x86_64-unknown-linux-musl --workspace --bins

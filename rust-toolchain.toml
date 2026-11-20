@@ -1,0 +1,8 @@
+# The one place the Rust version is set. rustup (locally and in CI) reads it.
+[toolchain]
+channel = "1.99.1"
+components = ["clippy", "rustfmt"]
+# Static release builds (packages and the container image); WebAssembly plugins (the example
+# plugin, built by the tests).
+targets = ["x86_64-unknown-linux-musl", "wasm32-wasip2"]
+profile = "minimal"

@@ -1,0 +1,32 @@
+[package]
+name = "ferrobill-directadmin"
+description = "DirectAdmin provisioning plugin for ferrobill: hosting accounts made, suspended, moved between packages and removed with their services"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+repository.workspace = true
+authors.workspace = true
+publish.workspace = true
+
+[dependencies]
+ferrobill-plugin-sdk = { workspace = true }
+anyhow = { workspace = true }
+getrandom = { workspace = true }
+reqwest = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+serde_urlencoded = { workspace = true }
+sha2 = { workspace = true }
+tokio = { workspace = true }
+tracing = { workspace = true }
+
+[dev-dependencies]
+axum = { workspace = true }
+
+[lints]
+workspace = true
+
+[[bin]]
+name = "ferrobill-directadmin"
+path = "src/main.rs"

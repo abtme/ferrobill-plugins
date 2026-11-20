@@ -1,0 +1,50 @@
+# cargo deny check: licences, security advisories, banned and duplicate crates.
+
+[graph]
+all-features = true
+
+[advisories]
+version = 2
+yanked = "deny"
+# Only fail for unmaintained crates we depend on directly; transitive ones are
+# their parent crates' maintainers' call.
+unmaintained = "workspace"
+
+[licenses]
+version = 2
+confidence-threshold = 0.9
+unused-allowed-license = "allow"
+# Permissive licences only: the images are Apache-2.0 and must stay usable by anyone.
+allow = [
+    # Zero-clause BSD: public-domain equivalent (quoted_printable, used by lettre).
+    "0BSD",
+    "Apache-2.0",
+    "Apache-2.0 WITH LLVM-exception",
+    "BSD-2-Clause",
+    "BSD-3-Clause",
+    "BSL-1.0",
+    "CC0-1.0",
+    "ISC",
+    "MIT",
+    "MIT-0",
+    "MPL-2.0",
+    "Unicode-3.0",
+    "Unlicense",
+    "Zlib",
+]
+
+[bans]
+multiple-versions = "allow"
+wildcards = "deny"
+allow-wildcard-paths = true
+
+[sources]
+unknown-registry = "deny"
+unknown-git = "deny"
+
+# Mozilla's CA certificate list (data, not code) under CDLA-Permissive-2.0, a permissive data
+# licence. Only this crate may use it: reqwest's rustls support always depends on it through
+# rustls-platform-verifier.
+[[licenses.exceptions]]
+crate = "webpki-root-certs"
+allow = ["CDLA-Permissive-2.0"]
