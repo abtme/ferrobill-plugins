@@ -221,6 +221,19 @@ dependencies = [
 ]
 
 [[package]]
+name = "ferrobill-cloudflare"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "axum",
+ "ferrobill-plugin-sdk",
+ "reqwest",
+ "serde",
+ "serde_json",
+ "tokio",
+]
+
+[[package]]
 name = "ferrobill-directadmin"
 version = "0.1.0"
 dependencies = [
