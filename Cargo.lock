@@ -249,6 +249,19 @@ dependencies = [
 ]
 
 [[package]]
+name = "ferrobill-gandi"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "axum",
+ "ferrobill-plugin-sdk",
+ "reqwest",
+ "serde_json",
+ "tokio",
+ "tracing",
+]
+
+[[package]]
 name = "ferrobill-hestiacp"
 version = "0.1.0"
 dependencies = [
