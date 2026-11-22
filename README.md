@@ -20,7 +20,11 @@ exception: plugins that only use the documented interface may use any licence.
 | apicp | | planned |
 | [HestiaCP](modules/hestiacp/README.md) | `ferrobill-hestiacp` | written, tested against a fake HestiaCP |
 | [Nominet](modules/nominet/README.md) (registrar) | `ferrobill-nominet` | written, tested against a fake EPP server and live on Nominet's testbed |
-| eNom, NetEarthOne, Gandi, Domain Name API (registrars) | | planned |
+| [eNom](modules/enom/README.md) (registrar) | `ferrobill-enom` | written, tested against a fake eNom server and read-only against the live API (renewals not yet run live) |
+| [NetEarthOne](modules/netearthone/README.md) (registrar) | `ferrobill-netearthone` | written, tested against a fake API and read-only against the live API (renewals not yet run live) |
+| [Gandi](modules/gandi/README.md) (registrar) | `ferrobill-gandi` | written, tested against a fake Gandi API and read-only against the live API (renewals not yet run live) |
+| [Domain Name API](modules/domainnameapi/README.md) (registrar) | `ferrobill-domainnameapi` | written, tested against a fake API and read-only against the live API (renewals not yet run live) |
+| [Cloudflare](modules/cloudflare/README.md) (registrar) | `ferrobill-cloudflare` | written, listing and expiry dates only (Cloudflare renews by itself); tested against a fake API, not yet against a real account |
 | cPanel / WHM | | planned |
 | Plesk | | planned |
 | DigitalOcean (droplets) | | planned |

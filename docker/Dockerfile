@@ -17,7 +17,7 @@ COPY . .
 RUN rustup toolchain install \
  && cargo build --release --locked --target x86_64-unknown-linux-musl --workspace --bins \
  && mkdir -p /out \
- && for b in ferrobill-directadmin ferrobill-hestiacp ferrobill-nominet ferrobill-plugin-cli; do \
+ && for b in ferrobill-cloudflare ferrobill-directadmin ferrobill-domainnameapi ferrobill-enom ferrobill-gandi ferrobill-hestiacp ferrobill-netearthone ferrobill-nominet ferrobill-plugin-cli; do \
       install -m 0755 target/x86_64-unknown-linux-musl/release/$b /out/$b; \
     done
 
@@ -52,3 +52,38 @@ LABEL org.opencontainers.image.title="ferrobill-nominet" \
 COPY --from=build /out/ferrobill-nominet /ferrobill-nominet
 COPY --from=build /out/ferrobill-plugin-cli /ferrobill-plugin-cli
 ENTRYPOINT ["/ferrobill-nominet"]
+
+FROM base AS enom
+LABEL org.opencontainers.image.title="ferrobill-enom" \
+      org.opencontainers.image.description="eNom registrar plugin for ferrobill"
+COPY --from=build /out/ferrobill-enom /ferrobill-enom
+COPY --from=build /out/ferrobill-plugin-cli /ferrobill-plugin-cli
+ENTRYPOINT ["/ferrobill-enom"]
+
+FROM base AS netearthone
+LABEL org.opencontainers.image.title="ferrobill-netearthone" \
+      org.opencontainers.image.description="NetEarthOne registrar plugin for ferrobill"
+COPY --from=build /out/ferrobill-netearthone /ferrobill-netearthone
+COPY --from=build /out/ferrobill-plugin-cli /ferrobill-plugin-cli
+ENTRYPOINT ["/ferrobill-netearthone"]
+
+FROM base AS gandi
+LABEL org.opencontainers.image.title="ferrobill-gandi" \
+      org.opencontainers.image.description="Gandi registrar plugin for ferrobill"
+COPY --from=build /out/ferrobill-gandi /ferrobill-gandi
+COPY --from=build /out/ferrobill-plugin-cli /ferrobill-plugin-cli
+ENTRYPOINT ["/ferrobill-gandi"]
+
+FROM base AS domainnameapi
+LABEL org.opencontainers.image.title="ferrobill-domainnameapi" \
+      org.opencontainers.image.description="Domain Name API registrar plugin for ferrobill"
+COPY --from=build /out/ferrobill-domainnameapi /ferrobill-domainnameapi
+COPY --from=build /out/ferrobill-plugin-cli /ferrobill-plugin-cli
+ENTRYPOINT ["/ferrobill-domainnameapi"]
+
+FROM base AS cloudflare
+LABEL org.opencontainers.image.title="ferrobill-cloudflare" \
+      org.opencontainers.image.description="Cloudflare Registrar plugin for ferrobill (domains and expiry dates)"
+COPY --from=build /out/ferrobill-cloudflare /ferrobill-cloudflare
+COPY --from=build /out/ferrobill-plugin-cli /ferrobill-plugin-cli
+ENTRYPOINT ["/ferrobill-cloudflare"]
