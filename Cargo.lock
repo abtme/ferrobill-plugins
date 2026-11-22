@@ -251,6 +251,20 @@ dependencies = [
 ]
 
 [[package]]
+name = "ferrobill-netearthone"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "axum",
+ "ferrobill-plugin-sdk",
+ "reqwest",
+ "serde_json",
+ "serde_urlencoded",
+ "tokio",
+ "tracing",
+]
+
+[[package]]
 name = "ferrobill-nominet"
 version = "0.1.0"
 dependencies = [
