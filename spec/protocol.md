@@ -117,6 +117,29 @@ ferrobill sends the person to `redirect_url` (single sign-on), shows `message`, 
 once and never stores it, and merges `data` into the provisioning data. 422 refuses, with
 `detail` shown to the person.
 
+## Registrars **(ferrobill 0.9)**
+
+A registrar plugin keeps ferrobill's domains in step with a registrar (ferrobill's
+docs/domains.md). Its manifest has `"kinds": ["registrar"]` and lists what it implements:
+
+```json
+{"name": "nominet", "version": "0.1.0", "kinds": ["registrar"],
+ "registrar_operations": ["domains", "info", "renew"]}
+```
+
+Each is a signed `POST /<operation>` with JSON; dates are `YYYY-MM-DD`; 422 means refused,
+anything else not 2xx is retried. The SDK's `registrar::Registrar` trait and `registrar::router`
+do the routing and signatures.
+
+- `POST /domains` `{"cursor": null}` -> `{"domains": [{"name": "...", "expires_on": "..."}],
+  "cursor": "...", "more": false}`: the registrar's list, for importing.
+- `POST /info` `{"name": "example.co.uk"}` -> `{"expires_on": "2027-02-02", "registrar":
+  "optional"}`: the daily expiry check asks the plugin before the public registry.
+- `POST /renew` `{"name": "...", "years": 1, "expires_on": "2027-02-02"}` -> `{"expires_on":
+  "2028-02-02"}`. Sent only for a renewal that is due (paid, or renewed by hand), never while
+  ferrobill is in dry run. **Must be safe to repeat**: if the domain already expires after
+  `expires_on`, it was renewed: answer its date without renewing again.
+
 ## `GET /healthz`
 
 Not signed. `200 ok` for liveness and readiness probes.

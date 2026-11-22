@@ -19,6 +19,8 @@ exception: plugins that only use the documented interface may use any licence.
 | [DirectAdmin](modules/directadmin/README.md) | `ferrobill-directadmin` | written, tested against a fake DirectAdmin |
 | apicp | | planned |
 | [HestiaCP](modules/hestiacp/README.md) | `ferrobill-hestiacp` | written, tested against a fake HestiaCP |
+| [Nominet](modules/nominet/README.md) (registrar) | `ferrobill-nominet` | written, tested against a fake EPP server and live on Nominet's testbed |
+| eNom, NetEarthOne, Gandi, Domain Name API (registrars) | | planned |
 | cPanel / WHM | | planned |
 | Plesk | | planned |
 | DigitalOcean (droplets) | | planned |

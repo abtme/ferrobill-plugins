@@ -17,7 +17,7 @@ COPY . .
 RUN rustup toolchain install \
  && cargo build --release --locked --target x86_64-unknown-linux-musl --workspace --bins \
  && mkdir -p /out \
- && for b in ferrobill-directadmin ferrobill-hestiacp ferrobill-plugin-cli; do \
+ && for b in ferrobill-directadmin ferrobill-hestiacp ferrobill-nominet ferrobill-plugin-cli; do \
       install -m 0755 target/x86_64-unknown-linux-musl/release/$b /out/$b; \
     done
 
@@ -45,3 +45,10 @@ LABEL org.opencontainers.image.title="ferrobill-hestiacp" \
 COPY --from=build /out/ferrobill-hestiacp /ferrobill-hestiacp
 COPY --from=build /out/ferrobill-plugin-cli /ferrobill-plugin-cli
 ENTRYPOINT ["/ferrobill-hestiacp"]
+
+FROM base AS nominet
+LABEL org.opencontainers.image.title="ferrobill-nominet" \
+      org.opencontainers.image.description="Nominet (.uk) registrar plugin for ferrobill"
+COPY --from=build /out/ferrobill-nominet /ferrobill-nominet
+COPY --from=build /out/ferrobill-plugin-cli /ferrobill-plugin-cli
+ENTRYPOINT ["/ferrobill-nominet"]

@@ -11,6 +11,7 @@
 //! `ferrobill-plugin-cli` tool.
 
 pub mod client;
+pub mod registrar;
 pub mod signature;
 pub mod types;
 pub mod util;
@@ -122,7 +123,7 @@ pub fn router<P: Provisioner>(plugin: P, secret: impl Into<String>) -> Router {
         .with_state(shared)
 }
 
-fn unauthorized() -> Response {
+pub(crate) fn unauthorized() -> Response {
     (
         StatusCode::UNAUTHORIZED,
         Json(json!({"detail": "missing or wrong ferrobill-signature"})),
@@ -130,7 +131,7 @@ fn unauthorized() -> Response {
         .into_response()
 }
 
-fn signed(secret: &str, headers: &HeaderMap, body: &[u8]) -> bool {
+pub(crate) fn signed(secret: &str, headers: &HeaderMap, body: &[u8]) -> bool {
     headers
         .get(signature::HEADER)
         .and_then(|v| v.to_str().ok())
