@@ -236,6 +236,19 @@ dependencies = [
 ]
 
 [[package]]
+name = "ferrobill-domainnameapi"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "axum",
+ "ferrobill-plugin-sdk",
+ "reqwest",
+ "serde",
+ "serde_json",
+ "tokio",
+]
+
+[[package]]
 name = "ferrobill-hestiacp"
 version = "0.1.0"
 dependencies = [
