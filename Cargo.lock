@@ -236,6 +236,19 @@ dependencies = [
 ]
 
 [[package]]
+name = "ferrobill-enom"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "axum",
+ "ferrobill-plugin-sdk",
+ "reqwest",
+ "serde_json",
+ "serde_urlencoded",
+ "tokio",
+]
+
+[[package]]
 name = "ferrobill-hestiacp"
 version = "0.1.0"
 dependencies = [
