@@ -18,7 +18,7 @@ exception: plugins that only use the documented interface may use any licence.
 |---|---|---|
 | [DirectAdmin](modules/directadmin/README.md) | `ferrobill-directadmin` | written, tested against a fake DirectAdmin |
 | apicp | | planned |
-| [HestiaCP](modules/hestiacp/README.md) | `ferrobill-hestiacp` | written, tested against a fake HestiaCP |
+| [HestiaCP](modules/hestiacp/README.md) | `ferrobill-hestiacp` | tested against a real HestiaCP 1.10.9 (2026-11-23) and a fake one |
 | [Nominet](modules/nominet/README.md) (registrar) | `ferrobill-nominet` | written, tested against a fake EPP server and live on Nominet's testbed |
 | [eNom](modules/enom/README.md) (registrar) | `ferrobill-enom` | written, tested against a fake eNom server and read-only against the live API (renewals not yet run live) |
 | [NetEarthOne](modules/netearthone/README.md) (registrar) | `ferrobill-netearthone` | written, tested against a fake API and read-only against the live API (renewals not yet run live) |

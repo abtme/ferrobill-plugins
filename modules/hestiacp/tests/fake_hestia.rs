@@ -18,6 +18,8 @@ struct User {
     suspended: bool,
     password: String,
     domains: Vec<String>,
+    contact: String,
+    name: String,
 }
 
 #[derive(Default)]
@@ -53,7 +55,8 @@ async fn api(State(fake): State<Arc<Fake>>, body: Bytes) -> (StatusCode, String)
                     (
                         k.clone(),
                         json!({"PACKAGE": u.package,
-                        "SUSPENDED": if u.suspended { "yes" } else { "no" }}),
+                        "SUSPENDED": if u.suspended { "yes" } else { "no" },
+                        "CONTACT": u.contact, "NAME": u.name}),
                     )
                 })
                 .collect();
@@ -79,6 +82,8 @@ async fn api(State(fake): State<Arc<Fake>>, body: Bytes) -> (StatusCode, String)
                     suspended: false,
                     password: arg(2),
                     domains: vec![],
+                    contact: arg(3),
+                    name: arg(5),
                 },
             );
             changes.push(format!("add-user {}", arg(1)));
@@ -271,6 +276,49 @@ async fn a_service_lifecycle_every_job_twice_and_a_half_done_create() {
 }
 
 #[tokio::test]
+async fn someone_elses_account_with_no_domain_is_not_taken_over() {
+    let (fake, url) = start_fake().await;
+    let c = start_plugin(&url, "SK").await;
+    let user = |contact: &str, name: &str| User {
+        package: "default".into(),
+        suspended: false,
+        password: String::new(),
+        domains: vec![],
+        contact: contact.into(),
+        name: name.into(),
+    };
+    for (contact, name) in [
+        ("x@other.example", "Acme Ltd"),
+        ("ap@acme.example", "Someone"),
+    ] {
+        fake.users
+            .lock()
+            .unwrap()
+            .insert("taken".into(), user(contact, name));
+        let mut j = job(Action::Create, &Map::new(), "default");
+        j.service.metadata.insert("username".into(), json!("taken"));
+        let r = c.provision(&j).await;
+        assert!(
+            matches!(r, Err(Error::Refused(ref d)) if d.contains("already taken")),
+            "{contact} {name}: {r:?}"
+        );
+    }
+    assert!(fake.users.lock().unwrap()["taken"].domains.is_empty());
+    // Made by an earlier try (same email, case aside, and name): finished.
+    fake.users
+        .lock()
+        .unwrap()
+        .insert("taken".into(), user("AP@acme.example", "Acme Ltd"));
+    let mut j = job(Action::Create, &Map::new(), "default");
+    j.service.metadata.insert("username".into(), json!("taken"));
+    c.provision(&j).await.unwrap();
+    assert_eq!(
+        fake.users.lock().unwrap()["taken"].domains,
+        ["acme-shop.example"]
+    );
+}
+
+#[tokio::test]
 async fn refusals_and_retries() {
     let (fake, url) = start_fake().await;
     let c = start_plugin(&url, "SK").await;
@@ -282,6 +330,8 @@ async fn refusals_and_retries() {
             suspended: false,
             password: String::new(),
             domains: vec!["other.example".into()],
+            contact: "x@other.example".into(),
+            name: "Other".into(),
         },
     );
     let mut j = job(Action::Create, &Map::new(), "default");

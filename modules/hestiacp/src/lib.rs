@@ -62,6 +62,9 @@ impl std::fmt::Debug for Hestia {
 struct User {
     package: String,
     suspended: bool,
+    /// The contact email and name it was made with (`v-add-user`).
+    contact: String,
+    name: String,
 }
 
 /// HestiaCP's return codes that matter here (func/main.sh).
@@ -203,6 +206,8 @@ impl Hestia {
         Ok(all.get(name).map(|u| User {
             package: u["PACKAGE"].as_str().unwrap_or_default().to_owned(),
             suspended: u["SUSPENDED"].as_str() == Some("yes"),
+            contact: u["CONTACT"].as_str().unwrap_or_default().to_owned(),
+            name: u["NAME"].as_str().unwrap_or_default().to_owned(),
         }))
     }
 
@@ -242,27 +247,32 @@ impl Hestia {
             .as_object()
             .cloned()
             .unwrap_or_default();
-        if self.user(server, &username).await?.is_some() {
+        let email = job.customer.email.as_deref();
+        let name_arg = if job.customer.name.trim().is_empty() {
+            username.as_str()
+        } else {
+            job.customer.name.trim()
+        };
+        if let Some(existing) = self.user(server, &username).await? {
             let domains = self.web_domains(server, &username).await?;
             if domains.iter().any(|d| d == &domain) {
                 return Ok(data); // sent before; the answer was lost
             }
-            if !domains.is_empty() {
+            // An account with no domain is only ours if an earlier try made it (stopped before its
+            // domain): the same contact email and name. Anyone else's is never taken over.
+            let ours = domains.is_empty()
+                && email.is_some_and(|e| existing.contact.eq_ignore_ascii_case(e))
+                && existing.name == name_arg;
+            if !ours {
                 return Err(Error::refused(format!(
                     "the HestiaCP username {username:?} is already taken by another account"
                 )));
             }
-            // Made by an earlier try that stopped before its domain: finish it.
         } else {
-            let email = job.customer.email.as_deref().ok_or_else(|| {
+            let email = email.ok_or_else(|| {
                 Error::refused("the customer has no email address (HestiaCP needs one)")
             })?;
             let pw = password();
-            let name_arg = if job.customer.name.trim().is_empty() {
-                username.as_str()
-            } else {
-                job.customer.name.trim()
-            };
             self.must(
                 server,
                 "v-add-user",
