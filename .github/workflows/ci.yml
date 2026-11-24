@@ -56,3 +56,23 @@ jobs:
       - run: cargo test --workspace --locked
       # The release binaries build static, as the images do.
       - run: cargo build --release --locked --target x86_64-unknown-linux-musl --workspace --bins
+
+  # One image per plugin to registry.abt.me (ferrobill-<plugin>), on pushes to main and v* tags,
+  # once the tests pass (.github/image-publish.sh).
+  image:
+    if: github.event_name == 'push'
+    needs: [test]
+    runs-on: ${{ vars.LINUX_RUNNER }}
+    timeout-minutes: 75
+    permissions:
+      contents: read
+      id-token: write   # the OpenBao login for the registry credentials
+    steps:
+      - uses: actions/checkout@v7
+      - name: Build, check and push
+        env:
+          BAO_ADDR: ${{ secrets.BAO_ADDR }}
+        run: |
+          command -v jq >/dev/null || { sudo apt-get update -qq && sudo apt-get install -y -qq --no-install-recommends jq; }
+          docker version --format 'docker {{.Server.Version}}'
+          bash .github/image-publish.sh
