@@ -296,7 +296,7 @@ impl Registrar for DomainNameApi {
         let name = domain_name(&r.name)?;
         Ok(DomainInfo {
             expires_on: self.expiry(&name).await?,
-            registrar: None,
+            registrar: Some("Domain Name API".into()),
         })
     }
 
@@ -613,7 +613,7 @@ mod tests {
             i,
             DomainInfo {
                 expires_on: "2027-11-09".into(),
-                registrar: None
+                registrar: Some("Domain Name API".into())
             }
         );
         let out = serde_json::to_string(&i).unwrap();

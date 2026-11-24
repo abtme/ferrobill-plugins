@@ -348,7 +348,7 @@ impl Registrar for NetEarthOne {
         let order = self.order(&id).await?;
         Ok(DomainInfo {
             expires_on: utc_date(order.endtime),
-            registrar: None,
+            registrar: Some("NetEarthOne".into()),
         })
     }
 

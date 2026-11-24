@@ -308,7 +308,7 @@ impl Registrar for Gandi {
         let name = domain_name(&r.name)?;
         Ok(DomainInfo {
             expires_on: self.expiry(&name).await?,
-            registrar: None,
+            registrar: Some("Gandi".into()),
         })
     }
 
